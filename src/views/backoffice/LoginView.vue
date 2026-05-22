@@ -29,7 +29,7 @@
 
 <template>
     <div>
-        <h1>Login Admin</h1>
+        <h1>Login Backoffice</h1>
     </div>
     <form @submit.prevent="submit">
         <input v-model="email" type="email" placeholder="test@gmail.com" :class="{ invalid: error }"/>
