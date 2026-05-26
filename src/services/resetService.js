@@ -28,4 +28,42 @@ export async function deleteRessource(ressource, id) {
     }
 }
 
+export async function reset({
+        ressourceTrier = ['orders','carts','combinations','product_option_values','product_options','products','customers','categories','taxes'],
+        log = (m) => console.log(m),
+        perItemDelay = 150,
+    } = {}){
+        try{
+            log(`La supression commence`);
+            const summary = { deletedCounts: {}, errors: [] };
+            for(const ressource of ressourceTrier){
+                log(`Supression de : ${ressource}`);
+                const ids = await getIds(ressource);
+                let nbrLigne = 0;
+                summary.deletedCounts[ressource] = 0
+                for(const id of ids){
+                    try{
+                        const deleteOk = await deleteRessource(ressource, id);
+                        if(deleteOk){
+                            log(`suppression d'id avec succes : ${id}`);
+                            summary.deletedCounts[ressource] ++;
+                            nbrLigne ++;
+                        }else{
+                            summary.errors.push({ressource,id,reason: `erreur de la supression de ${ressource} , id = ${id}`});
+                        }
+                    }catch(err){
+                        summary.errors.push({ressource, id, reason : err?.message || String(err) });
+                        log(`Error deleting ${ressource}/${id}: ${err?.message || err}`);
+                    }
+                    await new Promise(r => setTimeout(r, perItemDelay));
+                }
+                log(`Supression de ${nbrLigne} de ${ressource}`);
+            }
+            log(`Suppression de reussi`);
+            return summary;
+        } catch(err){
+            log(`Erreur de supression : ${err.message}`);
+        }
+}
+
 export default { getIds, deleteRessource };
