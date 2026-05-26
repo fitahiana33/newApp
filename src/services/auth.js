@@ -1,9 +1,9 @@
 import api from "./prestashopAPI";
-import { xmlToEmployees } from "./prestaMapper";
+import { xmlToList } from "./prestaMapper";
 
 export async function fetchEmployees() {
     const res = await api.get("/employees?display=full");
-    return xmlToEmployees(res.data);
+    return xmlToList(res.data, "employee", ["id", "email"]);
 }
 
 export async function fetchEmployeeByEmail(email) {
