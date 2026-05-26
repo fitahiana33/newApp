@@ -1,12 +1,16 @@
-export function xmlToEmployees(xmlString){
-    const xml = new DOMParser().parseFromString(xmlString, "text/xml");
+function text(node, selector){
+    return node.querySelector(selector)?.textContent?.trim() ?? null;
+}
 
-    return [
-        ...xml.getElementsByTagName("employee")
-    ].map((e) => {
-        return {
-            id: e.querySelector("id")?.textContent?.trim(),
-            email: e.querySelector("email")?.textContent?.trim()
-        };
+export function xmlToList(xmlString, itemTag, fields){
+    const xml = new DOMParser().parseFromString(xmlString, "text/xml");
+    const nodes = [...xml.getElementsByTagName(itemTag)];
+
+    return nodes.map((node) => {
+        const obj = {};
+        for(const field of fields){
+            obj[field] = text(node, field);
+        }
+        return obj;
     });
 }
