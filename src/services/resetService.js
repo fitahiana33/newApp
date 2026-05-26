@@ -21,10 +21,12 @@ export async function getIds(ressource){
 export async function deleteRessource(ressource, id) {
     try{
         const resp = await prestashopApi.delete(`${ressource}/${id}`);
-        return resp.status >= 200 && resp.status < 300;
+        return { ok: resp.status >= 200 && resp.status < 300, status: resp.status, data: resp.data};
     }catch(err){
-        console.error('Erreur de supression', ressource, id, err)
-        return false;
+        const status = err?.response?.status;
+        const body = err?.response?.data; 
+        console.error('Erreur de supression', ressource, id, status, body || err);
+        return { ok: false, status, body: body || (err?.message || String(err)) };
     }
 }
 
@@ -45,7 +47,7 @@ export async function reset({
                     try{
                         const deleteOk = await deleteRessource(ressource, id);
                         if(deleteOk){
-                            log(`suppression d'id avec succes : ${id}`);
+                            log(`suppression d'id : ${id} avec succes`);
                             summary.deletedCounts[ressource] ++;
                             nbrLigne ++;
                         }else{
@@ -66,4 +68,4 @@ export async function reset({
         }
 }
 
-export default { getIds, deleteRessource };
+export default { getIds, deleteRessource, reset };
